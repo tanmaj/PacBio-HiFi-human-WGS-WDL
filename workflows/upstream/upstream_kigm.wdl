@@ -16,15 +16,15 @@ version 1.0
 #import "../wdl-common/wdl/tasks/paraphase.wdl" as Paraphase
 #import "../wdl-common/wdl/tasks/mitorsaw.wdl" as Mitorsaw
 
-import "../wdl-common/our-general-changes/wdl/structs.wdl"
-import "../wdl-common/our-general-changes/wdl/workflows/pbmm2/pbmm2.wdl" as Pbmm2
-import "../wdl-common/our-general-changes/wdl/tasks/sawfish.wdl" as Sawfish
-import "../wdl-common/our-general-changes/wdl/workflows/deepvariant/deepvariant.wdl" as DeepVariant
-import "../wdl-common/our-general-changes/wdl/tasks/samtools.wdl" as Samtools
-import "../wdl-common/our-general-changes/wdl/tasks/mosdepth.wdl" as Mosdepth
-import "../wdl-common/our-general-changes/wdl/tasks/trgt.wdl" as Trgt
-import "../wdl-common/our-general-changes/wdl/tasks/paraphase.wdl" as Paraphase
-import "../wdl-common/our-general-changes/wdl/tasks/mitorsaw.wdl" as Mitorsaw
+import "../wdl-common/19ca392-branch/wdl/structs.wdl"
+import "../wdl-common/19ca392-branchs/wdl/workflows/pbmm2/pbmm2.wdl" as Pbmm2
+import "../wdl-common/19ca392-branch/wdl/tasks/sawfish.wdl" as Sawfish
+import "../wdl-common/19ca392-branch/wdl/workflows/deepvariant/deepvariant.wdl" as DeepVariant
+import "../wdl-common/19ca392-branch/wdl/tasks/samtools.wdl" as Samtools
+import "../wdl-common/19ca392-branch/wdl/tasks/mosdepth.wdl" as Mosdepth
+import "../wdl-common/19ca392-branch/wdl/tasks/trgt.wdl" as Trgt
+import "../wdl-common/19ca392-branch/wdl/tasks/paraphase.wdl" as Paraphase
+import "../wdl-common/19ca392-branch/wdl/tasks/mitorsaw.wdl" as Mitorsaw
 
 workflow upstream {
   meta {
