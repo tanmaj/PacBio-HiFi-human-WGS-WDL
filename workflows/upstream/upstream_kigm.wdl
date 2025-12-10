@@ -1,5 +1,11 @@
 version 1.0
 
+# T.M.
+# depending on ref_map["name"] GRCh37/hg19 or GRCh38 different tasks are called:
+# GRCh37: calling pbmm2, mosdepth, deep variant and both sawfish
+# GRCh38: calling pbmm2, paraphase, mitorsaw and trgt
+
+
 #import "../wdl-common/wdl/structs.wdl"
 #import "../wdl-common/wdl/workflows/pbmm2/pbmm2.wdl" as Pbmm2
 #import "../wdl-common/wdl/tasks/sawfish.wdl" as Sawfish
@@ -158,130 +164,145 @@ workflow upstream {
   File aligned_bam_data  = select_first([merge_hifi_bams.merged_bam, flatten(pbmm2.aligned_bams)[0]])
   File aligned_bam_index = select_first([merge_hifi_bams.merged_bam_index, flatten(pbmm2.aligned_bam_indices)[0]])
 
-  call Mosdepth.mosdepth {
-    input:
-      sample_id          = sample_id,
-      ref_name           = ref_map["name"],
-      aligned_bam        = aligned_bam_data,
-      aligned_bam_index  = aligned_bam_index,
-      infer_sex          = true,
-      runtime_attributes = default_runtime_attributes
-  }
 
-  String qc_sex = 
-    if (defined(sex) && (mosdepth.inferred_sex != sex)) 
-    then "~{sample_id}: Reported sex ~{sex} does not match inferred sex ~{mosdepth.inferred_sex}."
-    else ""
-
-  call DeepVariant.deepvariant {
-    input:
-      sample_id                  = sample_id,
-      aligned_bams               = [aligned_bam_data],
-      aligned_bam_indices        = [aligned_bam_index],
-      ref_fasta                  = ref_map["fasta"],       # !FileCoercion
-      ref_index                  = ref_map["fasta_index"], # !FileCoercion
-      ref_name                   = ref_map["name"],
-      gpu                        = gpu,
-      default_runtime_attributes = default_runtime_attributes
-  }
-
-  call Sawfish.sawfish_discover {
-    input:
-      sample_id               = sample_id,
-      sex                     = mosdepth.inferred_sex,
-      aligned_bam             = aligned_bam_data,
-      aligned_bam_index       = aligned_bam_index,
-      ref_fasta               = ref_map["fasta"],                       # !FileCoercion
-      ref_index               = ref_map["fasta_index"],                 # !FileCoercion
-      exclude_bed             = ref_map["sawfish_exclude_bed"],         # !FileCoercion
-      exclude_bed_index       = ref_map["sawfish_exclude_bed_index"],   # !FileCoercion
-      expected_male_bed       = ref_map["sawfish_expected_bed_male"],   # !FileCoercion
-      expected_female_bed     = ref_map["sawfish_expected_bed_female"], # !FileCoercion
-      small_variant_vcf       = deepvariant.vcf,
-      small_variant_vcf_index = deepvariant.vcf_index,
-      out_prefix              = "~{sample_id}",
-      runtime_attributes      = default_runtime_attributes
-  }
-
-  call Paraphase.paraphase {
-    input:
-      aligned_bam        = aligned_bam_data,
-      aligned_bam_index  = aligned_bam_index,
-      ref_fasta          = ref_map["fasta"],         # !FileCoercion
-      ref_index          = ref_map["fasta_index"],   # !FileCoercion
-      sample_id          = sample_id,
-      runtime_attributes = default_runtime_attributes
-  }
-
-  call Mitorsaw.mitorsaw {
-    input:
-      aligned_bam        = aligned_bam_data,
-      aligned_bam_index  = aligned_bam_index,
-      ref_fasta          = ref_map["fasta"],                  # !FileCoercion
-      ref_index          = ref_map["fasta_index"],            # !FileCoercion
-      out_prefix         = "~{sample_id}.~{ref_map['name']}",
-      runtime_attributes = default_runtime_attributes
-  }
-
-  # if fail_reads were aligned, merge them with the aligned hifi bams for trgt
-  if (defined(subset_bam.bam)) {
-    call Samtools.samtools_merge as merge_hifi_fail_bams {
+  if ( ref_map["name"]=="hg19" ) {
+    call Mosdepth.mosdepth {
       input:
-        bams               = flatten(select_all([flatten(pbmm2.aligned_bams), subset_bam.bam])),
+        sample_id          = sample_id,
+        ref_name           = ref_map["name"],
+        aligned_bam        = aligned_bam_data,
+        aligned_bam_index  = aligned_bam_index,
+        infer_sex          = true,
+        runtime_attributes = default_runtime_attributes
+    }
+    
+    String qc_sex = 
+      if (defined(sex) && (mosdepth.inferred_sex != sex)) 
+      then "~{sample_id}: Reported sex ~{sex} does not match inferred sex ~{mosdepth.inferred_sex}."
+      else ""
+  }
+
+  if ( ref_map["name"]=="hg19" ) {
+    call DeepVariant.deepvariant {
+      input:
+        sample_id                  = sample_id,
+        aligned_bams               = [aligned_bam_data],
+        aligned_bam_indices        = [aligned_bam_index],
+        ref_fasta                  = ref_map["fasta"],       # !FileCoercion
+        ref_index                  = ref_map["fasta_index"], # !FileCoercion
+        ref_name                   = ref_map["name"],
+        gpu                        = gpu,
+        default_runtime_attributes = default_runtime_attributes
+    }
+  }
+
+  if ( ref_map["name"]=="hg19" ) {
+    call Sawfish.sawfish_discover {
+      input:
+        sample_id               = sample_id,
+        sex                     = mosdepth.inferred_sex,
+        aligned_bam             = aligned_bam_data,
+        aligned_bam_index       = aligned_bam_index,
+        ref_fasta               = ref_map["fasta"],                       # !FileCoercion
+        ref_index               = ref_map["fasta_index"],                 # !FileCoercion
+        exclude_bed             = ref_map["sawfish_exclude_bed"],         # !FileCoercion
+        exclude_bed_index       = ref_map["sawfish_exclude_bed_index"],   # !FileCoercion
+        expected_male_bed       = ref_map["sawfish_expected_bed_male"],   # !FileCoercion
+        expected_female_bed     = ref_map["sawfish_expected_bed_female"], # !FileCoercion
+        small_variant_vcf       = deepvariant.vcf,
+        small_variant_vcf_index = deepvariant.vcf_index,
+        out_prefix              = "~{sample_id}",
+        runtime_attributes      = default_runtime_attributes
+    }
+  }
+
+  if ( ref_map["name"]=="GRCh38" ) {
+    call Paraphase.paraphase {
+      input:
+        aligned_bam        = aligned_bam_data,
+        aligned_bam_index  = aligned_bam_index,
+        ref_fasta          = ref_map["fasta"],         # !FileCoercion
+        ref_index          = ref_map["fasta_index"],   # !FileCoercion
+        sample_id          = sample_id,
+        runtime_attributes = default_runtime_attributes
+    }
+  }
+
+  if ( ref_map["name"]=="GRCh38" ) {
+    call Mitorsaw.mitorsaw {
+      input:
+        aligned_bam        = aligned_bam_data,
+        aligned_bam_index  = aligned_bam_index,
+        ref_fasta          = ref_map["fasta"],                  # !FileCoercion
+        ref_index          = ref_map["fasta_index"],            # !FileCoercion
         out_prefix         = "~{sample_id}.~{ref_map['name']}",
         runtime_attributes = default_runtime_attributes
     }
   }
 
-  String include_fail_reads = 
-    if (defined(subset_bam.bam) && defined(fail_reads_bed)) 
-    then "Including fail_reads for TRGT genotyping for regions specified in the TRGT catalog."
-    else ""
-
-  call Trgt.trgt {
-    input:
-      sample_id          = sample_id,
-      sex                = mosdepth.inferred_sex,
-      aligned_bam        = select_first([merge_hifi_fail_bams.merged_bam, aligned_bam_data]),
-      aligned_bam_index  = select_first([merge_hifi_fail_bams.merged_bam_index, aligned_bam_index]),
-      ref_fasta          = ref_map["fasta"],                  # !FileCoercion
-      ref_index          = ref_map["fasta_index"],            # !FileCoercion
-      trgt_bed           = trgt_catalog,
-      out_prefix         = "~{sample_id}.~{ref_map['name']}",
-      min_read_quality   = -1.0,
-      runtime_attributes = default_runtime_attributes
-  }
-
-  if (single_sample) {
-    String copynum_bedgraph_name           = "~{sample_id}.~{ref_map['name']}.structural_variants.copynum.bedgraph"
-    String depth_bw_name                   = "~{sample_id}.~{ref_map['name']}.structural_variants.depth.bw"
-    String gc_bias_corrected_depth_bw_name = "~{sample_id}.~{ref_map['name']}.structural_variants.gc_bias_corrected_depth.bw"
-    String maf_bw_name                     = "~{sample_id}.~{ref_map['name']}.structural_variants.maf.bw"
-    String copynum_summary_name            = "~{sample_id}.~{ref_map['name']}.structural_variants.copynum.summary.json"
-
-
-    call Sawfish.sawfish_call {
-      input:
-        sample_ids                       = [sample_id],
-        discover_tars                    = [sawfish_discover.discover_tar],
-        aligned_bams                     = [aligned_bam_data],
-        aligned_bam_indices              = [aligned_bam_index],
-        ref_fasta                        = ref_map["fasta"],                                      # !FileCoercion
-        ref_index                        = ref_map["fasta_index"],                                # !FileCoercion
-        out_prefix                       = "~{sample_id}.~{ref_map['name']}.structural_variants",
-        copynum_bedgraph_names           = [copynum_bedgraph_name],
-        depth_bw_names                   = [depth_bw_name],
-        gc_bias_corrected_depth_bw_names = [gc_bias_corrected_depth_bw_name],
-        maf_bw_names                     = [maf_bw_name],
-        copynum_summary_names            = [copynum_summary_name],
-        runtime_attributes               = default_runtime_attributes
+  if ( ref_map["name"]=="GRCh38" ) {
+    # if fail_reads were aligned, merge them with the aligned hifi bams for trgt
+    if (defined(subset_bam.bam)) {
+      call Samtools.samtools_merge as merge_hifi_fail_bams {
+        input:
+          bams               = flatten(select_all([flatten(pbmm2.aligned_bams), subset_bam.bam])),
+          out_prefix         = "~{sample_id}.~{ref_map['name']}",
+          runtime_attributes = default_runtime_attributes
+      }
     }
 
-    File copynum_bedgraph_output           = sawfish_call.copynum_bedgraph[0]
-    File depth_bw_output                   = sawfish_call.depth_bw[0]
-    File gc_bias_corrected_depth_bw_output = sawfish_call.gc_bias_corrected_depth_bw[0]
-    File maf_bw_output                     = sawfish_call.maf_bw[0]
-    File copynum_summary_output            = sawfish_call.copynum_summary[0]
+    String include_fail_reads = 
+      if (defined(subset_bam.bam) && defined(fail_reads_bed)) 
+      then "Including fail_reads for TRGT genotyping for regions specified in the TRGT catalog."
+      else ""
+
+    call Trgt.trgt {
+      input:
+        sample_id          = sample_id,
+        sex                = mosdepth.inferred_sex,
+        aligned_bam        = select_first([merge_hifi_fail_bams.merged_bam, aligned_bam_data]),
+        aligned_bam_index  = select_first([merge_hifi_fail_bams.merged_bam_index, aligned_bam_index]),
+        ref_fasta          = ref_map["fasta"],                  # !FileCoercion
+        ref_index          = ref_map["fasta_index"],            # !FileCoercion
+        trgt_bed           = trgt_catalog,
+        out_prefix         = "~{sample_id}.~{ref_map['name']}",
+        min_read_quality   = -1.0,
+        runtime_attributes = default_runtime_attributes
+    }
+  }
+
+  if ( ref_map["name"]=="hg19" ) {
+    if (single_sample) {
+      String copynum_bedgraph_name           = "~{sample_id}.~{ref_map['name']}.structural_variants.copynum.bedgraph"
+      String depth_bw_name                   = "~{sample_id}.~{ref_map['name']}.structural_variants.depth.bw"
+      String gc_bias_corrected_depth_bw_name = "~{sample_id}.~{ref_map['name']}.structural_variants.gc_bias_corrected_depth.bw"
+      String maf_bw_name                     = "~{sample_id}.~{ref_map['name']}.structural_variants.maf.bw"
+      String copynum_summary_name            = "~{sample_id}.~{ref_map['name']}.structural_variants.copynum.summary.json"
+
+
+      call Sawfish.sawfish_call {
+        input:
+          sample_ids                       = [sample_id],
+          discover_tars                    = [sawfish_discover.discover_tar],
+          aligned_bams                     = [aligned_bam_data],
+          aligned_bam_indices              = [aligned_bam_index],
+          ref_fasta                        = ref_map["fasta"],                                      # !FileCoercion
+          ref_index                        = ref_map["fasta_index"],                                # !FileCoercion
+          out_prefix                       = "~{sample_id}.~{ref_map['name']}.structural_variants",
+          copynum_bedgraph_names           = [copynum_bedgraph_name],
+          depth_bw_names                   = [depth_bw_name],
+          gc_bias_corrected_depth_bw_names = [gc_bias_corrected_depth_bw_name],
+          maf_bw_names                     = [maf_bw_name],
+          copynum_summary_names            = [copynum_summary_name],
+          runtime_attributes               = default_runtime_attributes
+      }
+
+      File copynum_bedgraph_output           = sawfish_call.copynum_bedgraph[0]
+      File depth_bw_output                   = sawfish_call.depth_bw[0]
+      File gc_bias_corrected_depth_bw_output = sawfish_call.gc_bias_corrected_depth_bw[0]
+      File maf_bw_output                     = sawfish_call.maf_bw[0]
+      File copynum_summary_output            = sawfish_call.copynum_summary[0]
+    }
   }
 
   output {
@@ -336,14 +357,14 @@ workflow upstream {
     File mitorsaw_hap_stats = mitorsaw.hap_stats
 
     # qc messages
-    Array[String] msg = flatten(
-      [
-        flatten(pbmm2.msg),
-        [qc_sex],
-        [include_fail_reads],
-        trgt.msg,
-        sawfish_discover.msg
-      ]
-    )
+    #Array[String] msg = flatten(
+    #  [
+    #    flatten(pbmm2.msg),
+    #    [qc_sex],
+    #    [include_fail_reads],
+    #    trgt.msg,
+    #    sawfish_discover.msg
+    #  ]
+    #)
   }
 }
