@@ -1,4 +1,4 @@
-version 1.0
+version 1.0  abc
 
 import "../wdl-common/wdl/structs.wdl"
 import "../wdl-common/wdl/workflows/pbmm2/pbmm2.wdl" as Pbmm2
