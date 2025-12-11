@@ -352,9 +352,9 @@ workflow upstream {
     File? paraphase_vcfs                = paraphase.vcfs_tar
 
     # per sample mitorsaw outputs
-    File mitorsaw_vcf       = mitorsaw.vcf
-    File mitorsaw_vcf_index = mitorsaw.vcf_index
-    File mitorsaw_hap_stats = mitorsaw.hap_stats
+    File? mitorsaw_vcf       = mitorsaw.vcf
+    File? mitorsaw_vcf_index = mitorsaw.vcf_index
+    File? mitorsaw_hap_stats = mitorsaw.hap_stats
 
     # qc messages
     #Array[String] msg = flatten(
