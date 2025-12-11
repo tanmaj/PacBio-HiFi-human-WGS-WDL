@@ -311,15 +311,15 @@ workflow upstream {
     File out_bam_index = aligned_bam_index
 
     # mosdepth outputs
-    File   mosdepth_summary                 = mosdepth.summary
-    File   mosdepth_region_bed              = mosdepth.region_bed
-    File   mosdepth_region_bed_index        = mosdepth.region_bed_index
-    File   mosdepth_depth_distribution_plot = mosdepth.depth_distribution_plot
+    File?   mosdepth_summary                 = mosdepth.summary
+    File?   mosdepth_region_bed              = mosdepth.region_bed
+    File?   mosdepth_region_bed_index        = mosdepth.region_bed_index
+    File?   mosdepth_depth_distribution_plot = mosdepth.depth_distribution_plot
     String inferred_sex                     = mosdepth.inferred_sex
     String stat_depth_mean                  = mosdepth.stat_depth_mean
 
     # per sample sv signatures
-    File discover_tar = sawfish_discover.discover_tar
+    File? discover_tar = sawfish_discover.discover_tar
 
     # sawfish outputs for single sample
     File? sv_vcf                        = sawfish_call.vcf
@@ -332,16 +332,16 @@ workflow upstream {
     File? sv_copynum_summary            = copynum_summary_output
 
     # small variant outputs
-    File small_variant_vcf        = deepvariant.vcf
-    File small_variant_vcf_index  = deepvariant.vcf_index
-    File small_variant_gvcf       = deepvariant.gvcf
-    File small_variant_gvcf_index = deepvariant.gvcf_index
+    File? small_variant_vcf        = deepvariant.vcf
+    File? small_variant_vcf_index  = deepvariant.vcf_index
+    File? small_variant_gvcf       = deepvariant.gvcf
+    File? small_variant_gvcf_index = deepvariant.gvcf_index
 
     # trgt outputs
-    File   trgt_vcf                  = trgt.vcf
-    File   trgt_vcf_index            = trgt.vcf_index
-    File   trgt_spanning_reads       = trgt.bam
-    File   trgt_spanning_reads_index = trgt.bam_index
+    File?   trgt_vcf                  = trgt.vcf
+    File?   trgt_vcf_index            = trgt.vcf_index
+    File?   trgt_spanning_reads       = trgt.bam
+    File?   trgt_spanning_reads_index = trgt.bam_index
     String stat_trgt_genotyped_count = trgt.stat_genotyped_count
     String stat_trgt_uncalled_count  = trgt.stat_uncalled_count
 
