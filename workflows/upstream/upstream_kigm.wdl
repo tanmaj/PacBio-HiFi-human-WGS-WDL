@@ -315,8 +315,8 @@ workflow upstream {
     File?   mosdepth_region_bed              = mosdepth.region_bed
     File?   mosdepth_region_bed_index        = mosdepth.region_bed_index
     File?   mosdepth_depth_distribution_plot = mosdepth.depth_distribution_plot
-    String inferred_sex                     = mosdepth.inferred_sex
-    String stat_depth_mean                  = mosdepth.stat_depth_mean
+    String? inferred_sex                     = mosdepth.inferred_sex
+    String? stat_depth_mean                  = mosdepth.stat_depth_mean
 
     # per sample sv signatures
     File? discover_tar = sawfish_discover.discover_tar
@@ -342,8 +342,8 @@ workflow upstream {
     File?   trgt_vcf_index            = trgt.vcf_index
     File?   trgt_spanning_reads       = trgt.bam
     File?   trgt_spanning_reads_index = trgt.bam_index
-    String stat_trgt_genotyped_count = trgt.stat_genotyped_count
-    String stat_trgt_uncalled_count  = trgt.stat_uncalled_count
+    String? stat_trgt_genotyped_count = trgt.stat_genotyped_count
+    String? stat_trgt_uncalled_count  = trgt.stat_uncalled_count
 
     # paraphase outputs
     File? paraphase_output_json         = paraphase.out_json
