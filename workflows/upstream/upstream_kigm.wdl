@@ -17,7 +17,7 @@ version 1.0
 #import "../wdl-common/wdl/tasks/mitorsaw.wdl" as Mitorsaw
 
 import "../wdl-common/19ca392-branch/wdl/structs.wdl"
-import "../wdl-common/19ca392-branchs/wdl/workflows/pbmm2/pbmm2.wdl" as Pbmm2
+import "../wdl-common/19ca392-branch/wdl/workflows/pbmm2/pbmm2.wdl" as Pbmm2
 import "../wdl-common/19ca392-branch/wdl/tasks/sawfish.wdl" as Sawfish
 import "../wdl-common/19ca392-branch/wdl/workflows/deepvariant/deepvariant.wdl" as DeepVariant
 import "../wdl-common/19ca392-branch/wdl/tasks/samtools.wdl" as Samtools
