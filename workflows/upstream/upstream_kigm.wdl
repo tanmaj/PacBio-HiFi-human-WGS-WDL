@@ -283,7 +283,7 @@ workflow upstream {
       call Sawfish.sawfish_call {
         input:
           sample_ids                       = [sample_id],
-          discover_tars                    = select_first([[sawfish_discover.discover_tar], ""]),
+          discover_tars                    = [select_first([sawfish_discover.discover_tar], ""])],
           aligned_bams                     = [aligned_bam_data],
           aligned_bam_indices              = [aligned_bam_index],
           ref_fasta                        = ref_map["fasta"],                                      # !FileCoercion
