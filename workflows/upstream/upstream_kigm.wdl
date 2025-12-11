@@ -209,8 +209,8 @@ workflow upstream {
         exclude_bed_index       = ref_map["sawfish_exclude_bed_index"],   # !FileCoercion
         expected_male_bed       = ref_map["sawfish_expected_bed_male"],   # !FileCoercion
         expected_female_bed     = ref_map["sawfish_expected_bed_female"], # !FileCoercion
-        small_variant_vcf       = deepvariant.vcf,
-        small_variant_vcf_index = deepvariant.vcf_index,
+        small_variant_vcf       = select_first([deepvariant.vcf, ""]),
+        small_variant_vcf_index = select_first([deepvariant.vcf_index, ""]),
         out_prefix              = "~{sample_id}",
         runtime_attributes      = default_runtime_attributes
     }
