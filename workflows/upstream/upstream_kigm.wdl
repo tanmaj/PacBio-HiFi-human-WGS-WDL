@@ -164,8 +164,8 @@ workflow upstream {
   File aligned_bam_data  = select_first([merge_hifi_bams.merged_bam, flatten(pbmm2.aligned_bams)[0]])
   File aligned_bam_index = select_first([merge_hifi_bams.merged_bam_index, flatten(pbmm2.aligned_bam_indices)[0]])
 
-
-  if ( ref_map["name"]=="hg19" ) {
+  # mosdepth calculates gender, which is needed for sawfish and trgt, so it must be always performed.
+  #if ( ref_map["name"]=="hg19" ) {
     call Mosdepth.mosdepth {
       input:
         sample_id          = sample_id,
@@ -180,7 +180,7 @@ workflow upstream {
       if (defined(sex) && (mosdepth.inferred_sex != sex)) 
       then "~{sample_id}: Reported sex ~{sex} does not match inferred sex ~{mosdepth.inferred_sex}."
       else ""
-  }
+  #}
 
   if ( ref_map["name"]=="hg19" ) {
     call DeepVariant.deepvariant {
